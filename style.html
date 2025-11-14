@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aandoleeb Ganguly</title>
+  <meta name="description" content="Dark cinematic portfolio for a tech innovator & entrepreneur." />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- GSAP for smooth animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Three.js for cinematic background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#050507; --panel:#0b0c10; --muted:#9aa0a6; --accent:#6be7ff; --glass:rgba(255,255,255,0.04);
+      --max-width:1100px; --radius:14px; --glass-2:rgba(255,255,255,0.02);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#050507 0%, #07070b 60%);color:#e6eef7;font-family:Inter,system-ui,Segoe UI,Roboto,-apple-system,"Helvetica Neue",Arial}
+    a{color:var(--accent);text-decoration:none}
+
+    /* Canvas background sits behind everything */
+    #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+    .site{position:relative;z-index:2;max-width:var(--max-width);margin:48px auto;padding:36px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#7c5cff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#021;letter-spacing:0.6px;font-family:Space Grotesk}
+    .nav{display:flex;gap:18px;align-items:center}
+    .cta{background:linear-gradient(90deg,var(--accent),#7c5cff);padding:10px 14px;border-radius:10px;color:#021;font-weight:700}
+
+    main{margin-top:28px}
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:36px;align-items:center}
+    .hero-card{background:linear-gradient(180deg,var(--glass),transparent);backdrop-filter:blur(6px);padding:30px;border-radius:16px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .title{font-size:32px;font-weight:800;line-height:1.02;margin:0}
+    .subtitle{color:var(--muted);margin-top:8px}
+    .actions{display:flex;gap:12px;margin-top:20px}
+    .ghost{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent}
+
+    /* Right side profile card */
+    .profile{padding:20px;border-radius:12px;background:linear-gradient(180deg,var(--glass),var(--glass-2));border:1px solid rgba(255,255,255,0.03)}
+    .avatar{width:100%;height:220px;border-radius:10px;background:linear-gradient(135deg,#0f1724,#081018);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:26px}
+    .meta{display:flex;justify-content:space-between;margin-top:12px}
+
+    /* Sections */
+    section{margin-top:36px}
+    h2.section-title{font-family:Space Grotesk;margin:0 0 12px 0;font-size:18px}
+
+    /* Skills */
+    .skills{display:flex;gap:18px;flex-wrap:wrap}
+    .skill{flex:1 1 220px;background:var(--panel);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .bar{height:10px;border-radius:8px;background:#0b0c10;margin-top:8px;overflow:hidden}
+    .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#7c5cff);border-radius:8px}
+
+    /* Projects */
+    .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .project{padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03);min-height:160px;display:flex;flex-direction:column;justify-content:space-between}
+    .proj-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .tag{font-size:12px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03)}
+
+    /* Timeline */
+    .timeline{position:relative;padding-left:16px}
+    .timeline:before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),#7c5cff);opacity:0.15}
+    .event{position:relative;padding:12px 12px 12px 28px;margin-bottom:12px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.01));border-radius:10px}
+    .event:before{content:'';position:absolute;left:-4px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(107,231,255,0.12)}
+
+    /* Contact */
+    .contact-grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    form input, form textarea{width:100%;padding:12px;border-radius:10px;background:#0c0d10;border:1px solid rgba(255,255,255,0.03);color:inherit}
+    form button{padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),#7c5cff);font-weight:700;cursor:pointer}
+
+    footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
+    
+  
+    /* Responsive */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .contact-grid{grid-template-columns:1fr}
+      .site{padding:18px}
+      .section1 {
+      background-image: url("space.jpg");
+      background-size: cover;
+      background-position: center;
+      height: 400px;
+      width: 100%;
+    }
+
+    .section2 {
+      background-image: url("space.jpg");
+      background-size: cover;
+      background-position: center;
+      height: 400px;
+      width: 100%;
+    }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="site">
+    <header>
+      <div class="brand">
+        <div class="logo" id="logo">AG</div>
+        <div>
+          <div style="font-weight:700">Aandoleeb Ganguly</div>
+          <div style="font-size:12px;color:var(--muted)">Tech Innovator • Founder • Problem Solver</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#achievements">Achievements</a>
+        <a class="cta" href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div class="hero-card">
+          <h1 class="title">I build meaningful products that ship — hardware + software for real users.</h1>
+          <p class="subtitle">I’m Aandoleeb, a self-taught Graphic Designer and a Class 10 student passionate about building visuals that feel modern, bold, and meaningful.</p>
+          <div class="actions">
+            <a class="cta" href="#projects">See Projects</a>
+          </div>
+
+          <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+            <div style="min-width:160px">
+              <div style="font-size:12px;color:var(--muted)">Location</div>
+              <div style="font-weight:700">Kolkata, India</div>
+            </div>
+            <div style="min-width:160px">
+              <div style="font-size:12px;color:var(--muted)">Role</div>
+              <div style="font-weight:700">Co-Hustler - Optifly</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="profile">
+          <div class="avatar">
+  <img src="assets/images/me.jpg" alt="Aandoleeb" style="
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:10px;
+  ">
+</div>
+          <div class="meta">
+            <div>
+              <div style="font-size:12px;color:var(--muted)">Experience</div>
+              <div style="font-weight:700">3+ years building digital products</div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--muted)">Projects</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <a class="ghost" href="#projects">Projects</a>
+            <a class="ghost" href="#contact">Contact</a>
+          </div>
+        </aside>
+      </div>
+
+      <section id="about">
+        <h2 class="section-title">About Me</h2>
+        <p style="color:var(--muted)">A Class 10 student with a digital designer’s mindset-crafting visual identities, layouts, and digital art with focus, precision, and a taste for minimal, modern design. I also keep music production as a side hustle as its never to bad to strum your guitar when even the toughest projects find no time.</p>
+      </section>
+
+      <section id="skills">
+        <h2 class="section-title">Skills</h2>
+        <div class="skills">
+          <div class="skill">
+            <div style="display:flex;justify-content:space-between"><strong>Web Desining</strong><span class="muted"></span></div>
+            <div class="bar" data-value="92"><i></i></div>
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">HTML, CSS, JavaScript</div>
+          </div>
+
+          <div class="skill">
+            <div style="display:flex;justify-content:space-between"><strong>ChatGPT-Powered Productivity Solutions</strong><span class="muted">Advanced</span></div>
+            <div class="bar" data-value="78"><i></i></div>
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">ChatGPT </div>
+          </div>
+
+          <div class="skill">
+            <div style="display:flex;justify-content:space-between"><strong>Product & Design</strong><span class="muted">Advanced</span></div>
+            <div class="bar" data-value="82"><i></i></div>
+            <div style="margin-top:10px;font-size:13px;color:var(--muted)">Figma, Logo Desin, Video demos, Social Media Organisation</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <h2 class="section-title">Selected Projects</h2>
+        <div class="projects-grid">
+          <article class="project" data-link="#">
+            <div>
+              <div style="font-weight:800">OptiFly — Low-cost Agricultural Drone</div>
+              <div style="color:var(--muted);margin-top:8px">Designed end-to-end hardware & firmware for a low-cost crop-spraying drone demonstrated at CBSE Skill Expo.</div>
+            </div>
+            <div>
+              <div class="proj-tags"><span class="tag">Hardware</span><span class="tag">Embedded</span><span class="tag">Competition</span></div>
+            </div>
+          </article>
+
+         
+
+          <article class="project" data-link="#">
+            <div>
+              <div style="font-weight:800">ATL Competition Launcher</div>
+              <div style="color:var(--muted);margin-top:8px">A modular kit & documentation used in national ATL events to execute drone prototyping.</div>
+            </div>
+            <div>
+              <div class="proj-tags"><span class="tag">Education</span><span class="tag">Presentability</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="achievements">
+        <h2 class="section-title">Experience & Achievements</h2>
+        <div class="timeline">
+          <div class="event">
+            <div style="font-weight:700">National CBSE Skill Expo — Team OptiFly</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px">Presented a production-ready low-cost drone system. Role: Firmware & product finishing — 2024</div>
+          </div>
+
+        
+
+      <section id="contact">
+        <h2 class="section-title">Contact</h2>
+        <div class="contact-grid">
+          <div>
+            <p style="color:var(--muted)">Want to level up your brand or workflow? Reach out — I respond fast and love working on impactful projects.</p>
+            <form onsubmit="event.preventDefault();window.location='mailto:youremail@example.com?subject=Portfolio%20Contact%20from%20Website&body='+encodeURIComponent(document.getElementById('msg').value)">
+              <input id="name" placeholder="Your name" required />
+              <input id="email" placeholder="Your email" required />
+              <textarea id="msg" placeholder="Message" rows="6" required></textarea>
+              <div style="margin-top:10px"><button type="submit">Send Message</button></div>
+            </form>
+          </div>
+
+          <aside style="background:var(--panel);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)">
+            <div style="font-weight:700">Get in touch</div>
+            <div style="color:var(--muted);margin-top:8px">youremail@example.com</div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <a href="#" title="GitHub" aria-label="GitHub" onclick="window.open('https://github.com')" class="ghost">GitHub</a>
+              <a href="#" title="LinkedIn" aria-label="LinkedIn" onclick="window.open('https://www.linkedin.com/in/aandoleeb-ganguly-a8586a32b/')" class="ghost">LinkedIn</a>
+            </div>
+            <div style="margin-top:16px;color:var(--muted);font-size:13px">Resume: <a href="/resume.pdf" download>Download</a></div>
+          </aside>
+        </div>
+      </section>
+
+      <footer>© <span id="year"></span> Aandoleeb Ganguly — Balancing Class 10 and creative design, one project at a time.</footer>
+    </main>
+  </div>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Feather icons
+    feather && feather.replace();
+
+    // Skill bars animation
+    document.querySelectorAll('.bar').forEach(bar => {
+      const val = bar.getAttribute('data-value') || 60;
+      const inner = bar.querySelector('i');
+      gsap.to(inner, {width: val + '%', duration:1.2, ease:'power3.out', scrollTrigger:{trigger:bar, start:'top 80%'}});
+    });
+
+    // Project card hover
+    document.querySelectorAll('.project').forEach((p,i)=>{
+      p.addEventListener('mouseenter',()=>gsap.to(p,{y:-6,boxShadow:'0 18px 50px rgba(2,6,23,0.7)',duration:0.4}))
+      p.addEventListener('mouseleave',()=>gsap.to(p,{y:0,boxShadow:'none',duration:0.4}))
+      p.addEventListener('click',()=>{ const link=p.dataset.link; if(link && link!=='#') window.open(link,'_self') })
+    });
+
+    // Cinematic three.js particle background (subtle)
+    (function(){
+      const canvas = document.getElementById('bg-canvas');
+      const renderer = new THREE.WebGLRenderer({canvas,alpha:true});
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,1,1000);
+      camera.position.z = 120;
+
+      const particles = new THREE.BufferGeometry();
+      const count = 1200;
+      const positions = new Float32Array(count*3);
+      for(let i=0;i<count*3;i+=3){
+        positions[i] = (Math.random()-0.5)*600;
+        positions[i+1] = (Math.random()-0.5)*300;
+        positions[i+2] = (Math.random()-0.5)*600;
+      }
+      particles.setAttribute('position', new THREE.BufferAttribute(positions,3));
+
+      const material = new THREE.PointsMaterial({size:1.6,vertexColors:false,color:0x6be7ff,opacity:0.12,transparent:true});
+      const points = new THREE.Points(particles, material);
+      scene.add(points);
+
+      // subtle camera motion
+      let t=0;
+      function resize(){
+        const w=window.innerWidth, h=window.innerHeight;
+        renderer.setSize(w,h);
+        camera.aspect = w/h; camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', resize); resize();
+
+      function animate(){
+        t += 0.002;
+        points.rotation.y = t;
+        points.rotation.x = Math.sin(t*0.3)*0.05;
+        renderer.render(scene,camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // Smooth entry animations
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.from('.hero-card',{y:24,opacity:0,duration:1,ease:'power3.out'});
+    gsap.from('.profile',{y:24,opacity:0,duration:1,delay:0.15,ease:'power3.out'});
+    gsap.utils.toArray('section').forEach((sec,i)=>{
+      gsap.from(sec,{y:20,opacity:0,duration:0.9,delay:0.06*i,scrollTrigger:{trigger:sec, start:'top 85%'}})
+    });
+
+    // Optional: keyboard shortcut to toggle dark accent
+    document.addEventListener('keydown', e=>{ if(e.key==='t'){ document.documentElement.style.setProperty('--accent', '#ffb86b'); document.documentElement.style.setProperty('--glass', 'rgba(255,184,107,0.04)') } });
+  </script>
+</body>
+</html>
